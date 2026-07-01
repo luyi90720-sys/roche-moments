@@ -1,10 +1,10 @@
 {
   "id": "roche-moments",
   "name": "朋友圈",
-  "version": "0.8.8",
-  "description": "v0.8.8：不再吞任何 click，遮罩延迟可点击。v0.8.4：顶栏适配优化。v0.8.3：长按操作菜单。支持user人设绑定多char、AI评论互动、记忆挂载。安装后请把 entry 改成你自己的 GitHub Raw 链接。",
+  "version": "0.8.9",
+  "description": "v0.8.9：修复侧边栏第二次打开后点击失效的问题（pointer-events hack替换为时间戳守卫+touchcancel处理）。v0.8.8：不再吞任何 click，遮罩延迟可点击。v0.8.4：顶栏适配优化。v0.8.3：长按操作菜单。支持user人设绑定多char、AI评论互动、记忆挂载。安装后请把 entry 改成你自己的 GitHub Raw 链接。",
   "author": "RocheMoments",
-  "entry": "https://raw.githubusercontent.com/luyi90720-sys/roche-moments/main/moments.js",
+  "entry": "https://raw.githubusercontent.com/yechen1844/roche-moments/main/moments.js",
   "hash": "",
   "iconImage": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><g transform='translate(50,50)'><g transform='rotate(0)'><ellipse cx='0' cy='-22' rx='7' ry='22' fill='rgb(255,92,92)'/></g><g transform='rotate(45)'><ellipse cx='0' cy='-22' rx='7' ry='22' fill='rgb(255,169,77)'/></g><g transform='rotate(90)'><ellipse cx='0' cy='-22' rx='7' ry='22' fill='rgb(255,212,59)'/></g><g transform='rotate(135)'><ellipse cx='0' cy='-22' rx='7' ry='22' fill='rgb(105,219,124)'/></g><g transform='rotate(180)'><ellipse cx='0' cy='-22' rx='7' ry='22' fill='rgb(77,171,247)'/></g><g transform='rotate(225)'><ellipse cx='0' cy='-22' rx='7' ry='22' fill='rgb(116,143,252)'/></g><g transform='rotate(270)'><ellipse cx='0' cy='-22' rx='7' ry='22' fill='rgb(177,151,252)'/></g><g transform='rotate(315)'><ellipse cx='0' cy='-22' rx='7' ry='22' fill='rgb(255,107,157)'/></g><circle r='6' fill='white'/></g></svg>",
   "permissions": [
