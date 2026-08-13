@@ -1,8 +1,8 @@
 ﻿{
   "id": "roche-moments",
   "name": "朋友圈",
-  "version": "1.1.0",
-  "description": "v1.1.0：修复user/char头像无法显示（onerror回退+API刷新），新增char发朋友圈自动生图功能（roche.ai.generateImage，提示词+AI图片描述拼接），每个char可单独配置生图提示词，留空用文字图不强迫；生图提示词弹窗内可切换图片描述中英文（适配只懂英文的生图模型）。支持user人设绑定多char、AI评论互动、记忆挂载。安装后请把 entry 改成你自己的 GitHub Raw 链接。",
+  "version": "1.1.1",
+  "description": "v1.1.1：生图新增负向提示词（negativePrompt）配置，每个char可单独配置正向+负向提示词；修复user/char头像无法显示；char发朋友圈自动生图（提示词+AI图片描述拼接），留空用文字图不强迫；图片描述语言中英文切换。支持user人设绑定多char、AI评论互动、记忆挂载。安装后请把 entry 改成你自己的 GitHub Raw 链接。",
   "author": "RocheMoments",
   "entry": "https://raw.githubusercontent.com/luyi90720-sys/roche-moments/main/moments.js",
   "hash": "",

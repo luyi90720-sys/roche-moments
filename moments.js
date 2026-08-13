@@ -303,7 +303,7 @@
       userPersonaId: per.id, userPersonaName: per.name || per.id,
       userPersonaHandle: per.handle || per.name || '', userPersonaAvatar: per.avatar || '',
       userPersonaBio: per.bio || '', cover: '', chars: [], createdAt: Date.now(),
-      customPrompts: { charPost: '', charComment: '', npcComment: '', syncFormat: {}, imgPrompts: {} },
+      customPrompts: { charPost: '', charComment: '', npcComment: '', syncFormat: {}, imgPrompts: {}, imgNegPrompts: {} },
       userIdentity: '', relations: []
     };
     state.spaces.push(sp); Store.saveSpaces(); return sp;
@@ -344,6 +344,19 @@
     if (!space.customPrompts.imgPrompts || typeof space.customPrompts.imgPrompts !== 'object') space.customPrompts.imgPrompts = {};
     var key = subjectId === 'user' ? '_user' : subjectId;
     space.customPrompts.imgPrompts[key] = val;
+    Store.saveSpaces();
+  }
+  // 负向生图提示词读取：每个 char 单独一套
+  function getImgNegPrompt(space, subjectId) {
+    if (!space || !space.customPrompts || !space.customPrompts.imgNegPrompts) return '';
+    var key = subjectId === 'user' ? '_user' : subjectId;
+    return space.customPrompts.imgNegPrompts[key] || '';
+  }
+  function setImgNegPrompt(space, subjectId, val) {
+    if (!space.customPrompts) space.customPrompts = {};
+    if (!space.customPrompts.imgNegPrompts || typeof space.customPrompts.imgNegPrompts !== 'object') space.customPrompts.imgNegPrompts = {};
+    var key = subjectId === 'user' ? '_user' : subjectId;
+    space.customPrompts.imgNegPrompts[key] = val;
     Store.saveSpaces();
   }
   // 图片描述语言：'zh'（中文，默认）或 'en'（英文，适配只懂英文的生图模型）
@@ -439,7 +452,7 @@
     var dirty = false;
     (state.spaces || []).forEach(function (space) {
       if (!space.customPrompts || typeof space.customPrompts !== 'object') {
-        space.customPrompts = { charPost: '', charComment: '', npcComment: '', syncFormat: {}, imgPrompts: {} };
+        space.customPrompts = { charPost: '', charComment: '', npcComment: '', syncFormat: {}, imgPrompts: {}, imgNegPrompts: {} };
         dirty = true;
       } else {
         var cp = space.customPrompts;
@@ -447,6 +460,7 @@
         if (cp.charComment == null) { cp.charComment = ''; dirty = true; }
         if (cp.npcComment == null) { cp.npcComment = ''; dirty = true; }
         if (cp.imgPrompts == null || typeof cp.imgPrompts !== 'object') { cp.imgPrompts = {}; dirty = true; }
+        if (cp.imgNegPrompts == null || typeof cp.imgNegPrompts !== 'object') { cp.imgNegPrompts = {}; dirty = true; }
         // syncFormat 子字段兜底（全部默认空串 = 用内置默认）
         if (!cp.syncFormat || typeof cp.syncFormat !== 'object') { cp.syncFormat = {}; dirty = true; }
         var sf = cp.syncFormat;
@@ -598,12 +612,15 @@
       // 生图：如果该 char 配置了生图提示词，用「提示词 + 图片描述」调用 generateImage 生成真实图片
       // 无提示词则保留文字图，不强迫配置
       var imgPrompt = getImgPrompt(space, sc.charId);
+      var imgNegPrompt = getImgNegPrompt(space, sc.charId);
       var imgGenStep = Promise.resolve(images);
       if (trim(imgPrompt) && images.length) {
         imgGenStep = Promise.all(images.map(function (img) {
           var desc = img.textContent || img.value || '';
           var fullPrompt = trim(imgPrompt) + (desc ? ', ' + desc : '');
-          return cachedRoche.ai.generateImage({ prompt: fullPrompt }).then(function (res) {
+          var genOpts = { prompt: fullPrompt };
+          if (trim(imgNegPrompt)) genOpts.negativePrompt = trim(imgNegPrompt);
+          return cachedRoche.ai.generateImage(genOpts).then(function (res) {
             var url = '';
             if (typeof res === 'string') url = res;
             else if (res && res.url) url = res.url;
@@ -1588,8 +1605,10 @@
       (space.chars || []).forEach(function (sc) {
         var cname = sc.charHandle || sc.charName || sc.charId;
         html += '<div class="moments-mood-label">' + escapeHtml(cname) + '（char）的生图提示词</div>';
-        html += '<div class="moments-mood-hint">如：二次元水彩风，冷色调，雨天街景</div>';
+        html += '<div class="moments-mood-hint">正向：如 二次元水彩风，冷色调，雨天街景</div>';
         html += '<textarea class="moments-mood-ta" data-field="img-prompt-' + escapeHtml(sc.charId) + '" placeholder="留空=用文字图，不生图">' + escapeHtml(getImgPrompt(space, sc.charId)) + '</textarea>';
+        html += '<div class="moments-mood-hint">负向：如 lowres, bad anatomy, blurry, text, watermark（不想要的内容）</div>';
+        html += '<textarea class="moments-mood-ta" data-field="img-negprompt-' + escapeHtml(sc.charId) + '" placeholder="留空=不传负向提示词">' + escapeHtml(getImgNegPrompt(space, sc.charId)) + '</textarea>';
         html += '<div class="moments-div"></div>';
       });
     }
@@ -2049,6 +2068,15 @@
         var subjId = field.replace('img-prompt-', '');
         if (subjId === '_user') subjId = 'user';
         setImgPrompt(spI, subjId, t.value);
+      }
+      return;
+    }
+    // 负向生图提示词（space 级，每个 char 单独一套，textarea 失焦时保存）
+    if (field && field.indexOf('img-negprompt-') === 0) {
+      var spN = Store.getActiveSpace(); if (spN) {
+        var subjN = field.replace('img-negprompt-', '');
+        if (subjN === '_user') subjN = 'user';
+        setImgNegPrompt(spN, subjN, t.value);
       }
       return;
     }
